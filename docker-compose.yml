@@ -16,7 +16,7 @@ services:
       - reschedule=on-node-failure
       - DT_CUSTOM_PROP=app=orders environment=dev
     ports:
-      - "8083:80"
+      - "8089:80"
   orders-db:
     image: mongo
     hostname: orders-db
