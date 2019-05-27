@@ -19,6 +19,7 @@ public class BasicUserPath extends BaseNeoLoadUserPath {
         final Server server = baseNeoLoadDesign.getServerByName("Server");
         final ConstantVariable constantpath= (ConstantVariable) baseNeoLoadDesign.getVariableByName("basicPath");
 
+
         final Request getRequest = getBuilder(server, variabilize(constantpath), emptyList(),emptyList(),emptyList()).build();
 
         final Delay delay = thinkTime(250);
