@@ -1,4 +1,4 @@
-package works.weave.socks.cart.loadtest;
+package works.weave.socks.orders.loadtest;
 
 import com.google.common.collect.ImmutableList;
 import com.neotys.neoload.model.repository.*;
