@@ -6,7 +6,7 @@ import com.neotys.testing.framework.NeoLoadTest;
 public class OrderLoadTest extends NeoLoadTest {
     @Override
     protected BaseNeoLoadDesign design() {
-        return new works.weave.socks.cart.loadtest.TestingDesign();
+        return new TestingDesign();
     }
 
     @Override
