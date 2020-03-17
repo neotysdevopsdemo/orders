@@ -33,3 +33,7 @@ services:
     environment:
       - reschedule=on-node-failure
       - DT_CUSTOM_PROP=app=orders-db environment=dev
+networks:
+  default:
+    external:
+      name: TO_REPLACE
