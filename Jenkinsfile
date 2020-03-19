@@ -97,7 +97,7 @@ agent  { label 'master' }
                                            -e SCENARIO_NAME=Order_Load \
                                            -e CONTROLLER_ZONE_ID=defaultzone \
                                            -e LG_ZONE_IDS=defaultzone:1 \
-                                           --network ${APP_NAME} --user root\
+                                           --network ${APP_NAME}\
                                             neotys/neoload-web-test-launcher:latest"
 
 
