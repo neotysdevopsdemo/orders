@@ -96,7 +96,7 @@ agent  { label 'master' }
                                            -e TEST_RESULT_NAME=FuncCheck_orders__${VERSION}_${BUILD_NUMBER} \
                                            -e SCENARIO_NAME=Order_Load \
                                            -e CONTROLLER_ZONE_ID=defaultzone \
-                                           -e LG_ZONE_IDS=defaultzone:1 \
+                                           -e LG_ZONE_IDS=defaultzone:1 --user root \
                                            --network ${APP_NAME}\
                                             neotys/neoload-web-test-launcher:latest"
 
