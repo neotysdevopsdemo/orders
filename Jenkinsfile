@@ -13,11 +13,10 @@ agent  { label 'master' }
     NL_DT_TAG = "app:${env.APP_NAME},environment:dev"
     CARTS_ANOMALIEFILE="$WORKSPACE/monspec/orders_anomalieDection.json"
     TAG_STAGING = "${TAG}-stagging:${VERSION}"
-    DYNATRACEID="${env.DT_ACCOUNTID}.live.dynatrace.com"
+    DYNATRACEID="https://${env.DT_ACCOUNTID}.live.dynatrace.com/"
     DYNATRACEAPIKEY="${env.DT_API_TOKEN}"
     NLAPIKEY="${env.NL_WEB_API_KEY}"
     OUTPUTSANITYCHECK="$WORKSPACE/infrastructure/sanitycheck.json"
-    DYNATRACEPLUGINPATH="$WORKSPACE/lib/DynatraceIntegration-3.0.1-SNAPSHOT.jar"
     GROUP = "neotysdevopsdemo"
     DOCKER_COMPOSE_TEMPLATE="$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose.template"
     DOCKER_COMPOSE_LG_FILE = "$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose-neoload.yml"
@@ -35,7 +34,7 @@ agent  { label 'master' }
           }
     stage('Maven build') {
                 steps {
-          sh "mvn -B clean package -DdynatraceId=$DYNATRACEID -DneoLoadWebAPIKey=$NLAPIKEY -DdynatraceApiKey=$DYNATRACEAPIKEY -Dtags=${NL_DT_TAG} -DoutPutReferenceFile=$OUTPUTSANITYCHECK -DcustomActionPath=$DYNATRACEPLUGINPATH -DjsonAnomalieDetectionFile=$CARTS_ANOMALIEFILE"
+          sh "mvn -B clean package -DdynatraceURL=$DYNATRACEID -DneoLoadWebAPIKey=$NLAPIKEY -DdynatraceApiKey=$DYNATRACEAPIKEY -DdynatraceTags=${NL_DT_TAG}  -DjsonAnomalieDetectionFile=$CARTS_ANOMALIEFILE"
 
         }
       }
@@ -84,25 +83,82 @@ agent  { label 'master' }
 
                              }
 
-    stage('Run functional check in dev') {
+
+    stage('NeoLoad Test')
+            {
+             agent {
+             docker {
+                 image 'python:3-alpine'
+                 reuseNode true
+              }
+
+                }
+            stages {
+                 stage('Get NeoLoad CLI') {
+                              steps {
+                                withEnv(["HOME=${env.WORKSPACE}"]) {
+
+                                 sh '''
+                                      export PATH=~/.local/bin:$PATH
+                                      pip3 install neoload
+                                      neoload --version
+                                  '''
+
+                                }
+                              }
+                }
 
 
-      steps {
+                stage('Run functional check in dev') {
 
-             sleep 90
-             sh "docker run --rm \
-                                           -v $WORKSPACE/target/neoload/Orders_NeoLoad/:/neoload-project \
-                                           -e NEOLOADWEB_TOKEN=$NLAPIKEY \
-                                           -e TEST_RESULT_NAME=FuncCheck_orders__${VERSION}_${BUILD_NUMBER} \
-                                           -e SCENARIO_NAME=Order_Load \
-                                           -e CONTROLLER_ZONE_ID=defaultzone \
-                                           -e LG_ZONE_IDS=defaultzone:1 --user root \
-                                           --network ${APP_NAME}\
-                                            neotys/neoload-web-test-launcher:latest"
+
+                  steps {
+
+                         sleep 90
 
 
 
-      }
+                           sh """
+                                    export PATH=~/.local/bin:$PATH
+                                    neoload \
+                                    login --workspace "Default Workspace" $NLAPIKEY \
+                                    test-settings  --zone defaultzone --scenario Order_Load  use OrderDynatrace \
+                                    project --path  $WORKSPACE/target/neoload/Orders_NeoLoad/ upload
+                           """
+
+
+
+                  }
+                }
+
+                 stage('Run Test') {
+                          steps {
+                            withEnv(["HOME=${env.WORKSPACE}"]) {
+                              sh """
+                                   export PATH=~/.local/bin:$PATH
+                                   neoload run \
+                                  --return-0 \
+                                    OrderDynatrace
+                                 """
+                            }
+                          }
+                 }
+                 stage('Generate Test Report') {
+                          steps {
+                            withEnv(["HOME=${env.WORKSPACE}"]) {
+                                sh """
+                                     export PATH=~/.local/bin:$PATH
+                                     neoload test-results junitsla
+                                   """
+                            }
+                          }
+                          post {
+                              always {
+                                  junit 'junit-sla.xml'
+                              }
+                          }
+                }
+            }
     }
     
     stage('Mark artifact for staging namespace') {
