@@ -113,7 +113,7 @@ agent  { label 'master' }
 
 
                   steps {
-
+                          withEnv(["HOME=${env.WORKSPACE}"]) {
                          sleep 90
 
 
@@ -125,7 +125,7 @@ agent  { label 'master' }
                                     test-settings  --zone defaultzone --scenario Order_Load  use OrderDynatrace \
                                     project --path  $WORKSPACE/target/neoload/Orders_NeoLoad/ upload
                            """
-
+                            }
 
 
                   }
