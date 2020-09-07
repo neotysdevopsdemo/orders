@@ -122,7 +122,7 @@ agent  { label 'master' }
                                     export PATH=~/.local/bin:$PATH
                                     neoload \
                                     login --workspace "Default Workspace" $NLAPIKEY \
-                                    test-settings  --zone defaultzone --scenario Order_Load  use OrderDynatrace \
+                                    test-settings  --zone defaultzone --scenario Order_Load  create OrderDynatrace \
                                     project --path  $WORKSPACE/target/neoload/Orders_NeoLoad/ upload
                            """
                             }
