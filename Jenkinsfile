@@ -10,7 +10,7 @@ agent  { label 'master' }
     APP_NAME = "orders"
     TAG = "neotysdevopsdemo/${APP_NAME}"
     TAG_DEV = "${TAG}:DEV-${VERSION}"
-    NL_DT_TAG = "app:${env.APP_NAME}"
+    NL_DT_TAG = "app:${env.APP_NAME},environment:dev"
     CARTS_ANOMALIEFILE="$WORKSPACE/monspec/orders_anomalieDection.json"
     TAG_STAGING = "${TAG}-stagging:${VERSION}"
     DYNATRACEID="https://${env.DT_ACCOUNTID}.live.dynatrace.com/"
