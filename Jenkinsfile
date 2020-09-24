@@ -83,7 +83,16 @@ agent  { label 'master' }
 
                              }
 
-
+ stage('warmup the application')
+        {
+            steps{
+                sleep 20
+                script{
+                    sh "curl http://localhost:8088"
+                    sh "curl http://localhost:8088"
+                }
+            }
+        }
     stage('NeoLoad Test')
             {
              agent {
